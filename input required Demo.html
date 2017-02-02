@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="UA-X-Compatible" content="IE=Edge,Chrome=1" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>placeholder required 兼容Chrome, Firefox, Safari, Opera, IE 6 7 8 9 10 11+</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta name="robots" content="none" />
+    <style>
+        *{margin:0;padding:0;outline:none;}
+        body{font:14px/1.5 SimSun,Arial;width:100%;margin:0;}
+        h1{font-style:normal;font-weight:normal;}
+        div#container{margin:10px;}
+        p{margin:10px 0;}
+        input{display:block;margin:15px 0;vertical-align:middle;width:20%;_height:2em;_line-height:2em;}
+        input:focus{text-shadow:0 0 2px #000000;}
+        input[type="text"]{height:2em;line-height:2em;padding:5px;}
+        input[type="submit"]{height:3em;width:6em;text-align:center;cursor:pointer;}
+    </style>
+</head>
+<body>
+<div id="container">
+    <p>请填写以下表单</p>
+    <form method="POST" autocomplete="off">
+        <input type="text" name="name" placeholder="你的姓名" required />
+        <input type="text" name="phone" placeholder="联系方式" required />
+        <input type="text" name="cp" placeholder="工作单位" required />
+        <input type="submit" name="submit" value=" 提 交 " />
+    </form>
+</div>
+<script>
+
+     /*
+     *检测浏览器是否支持 placeholder 属性
+     * 为不支持 placeholder 属性的浏览器写兼容代码
+     * 注意，需要 placeholder 的表单控件不要写value属性。
+     * 本代码只操作 input 控件，如果需要支持其他控件请自己修改代码
+     * 下面对 required 属性的操作同理。
+     */
+    var testElement=document.createElement('input');
+    var placeholderSupported='placeholder' in testElement;
+    if(!placeholderSupported){
+        var inputs=document.getElementsByTagName('input');
+        for(var n=0;n<inputs.length;n++){
+            var input=inputs[n];
+            var placeholder=input.placeholder?input.placeholder:input.getAttribute('placeholder');
+            //部分浏览器不支持直接操作自定义属性，用 getAttribute() 来获取自定义属性。
+            if(!placeholder) continue;
+            input.value=placeholder;
+            input.onfocus=function(){
+                if(this.value==this.getAttribute('placeholder')){
+                    this.value='';
+                }
+            };
+            input.onmouseover=function(){
+                this.focus();
+            }
+            input.onblur=function(){
+                if(this.value==''){
+                    this.value=this.getAttribute('placeholder');
+                }
+            }
+        }
+    }else{
+        var inputs=document.getElementsByTagName('input');
+        for(var n=0;n<inputs.length;n++){
+            inputs[n].onmouseover=function(){
+                this.focus();
+            }
+        }
+    }
+    /* 检测浏览器是否支持 required 属性
+     * 为不支持 required 属性的浏览器写兼容代码
+     */
+    var requiredSupported='required' in testElement&&!/Version\/[\d\.]+\s*Safari/i.test(navigator.userAgent);
+    if(!requiredSupported){
+        document.getElementsByTagName('form')[0].onsubmit=function(e){
+            var inputs=document.getElementsByTagName('input');
+            for(var n=0;n<inputs.length;n++){
+                var input=inputs[n];
+                var placeholder=input.placeholder?input.placeholder:input.getAttribute('placeholder');
+                if(!placeholder) continue;
+                if(!input.value||(input.value==placeholder)){
+                    alert('请填写'+placeholder);
+                    e=e||window.event;
+                    e.preventDefault&&e.preventDefault();
+                    e.returnValue=false;
+                    break;
+                }
+            }
+        };
+    }
+</script>
+</body>
+</html>
